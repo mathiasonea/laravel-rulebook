@@ -1,0 +1,7 @@
+parameters:
+    level: max
+    paths:
+        - src
+        - tests/Fixtures
+        - tests/TypeInference.php
+    tmpDir: build/phpstan

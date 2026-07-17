@@ -1,0 +1,75 @@
+{
+    "name": "mathiasonea/laravel-rulebook",
+    "description": "Select which business rule applies to an object at a given time and understand why.",
+    "keywords": [
+        "Mathias Onea",
+        "laravel",
+        "laravel-rulebook"
+    ],
+    "homepage": "https://github.com/mathiasonea/laravel-rulebook",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Mathias Onea",
+            "email": "office@mathiasonea.at",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.3",
+        "illuminate/contracts": "^12.0|^13.0",
+        "illuminate/support": "^12.0|^13.0",
+        "spatie/laravel-package-tools": "^1.93"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.14",
+        "nunomaduro/collision": "^8.8",
+        "larastan/larastan": "^3.0",
+        "orchestra/testbench": "^10.0|^11.0",
+        "pestphp/pest": "^4.0",
+        "pestphp/pest-plugin-arch": "^4.0",
+        "pestphp/pest-plugin-laravel": "^4.0",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan-deprecation-rules": "^2.0",
+        "phpstan/phpstan-phpunit": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "MathiasOnea\\Rulebook\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "MathiasOnea\\Rulebook\\Tests\\": "tests/"
+        },
+        "files": [
+            "tests/Fixtures/TestingDomain.php",
+            "tests/Fixtures/VehiclePricingDomain.php",
+            "tests/Fixtures/SubscriptionBillingDomain.php"
+        ]
+    },
+    "scripts": {
+        "post-autoload-dump": "@composer run prepare",
+        "prepare": "@php vendor/bin/testbench package:discover --ansi",
+        "analyse": "vendor/bin/phpstan analyse --memory-limit=512M",
+        "test": "vendor/bin/pest",
+        "test-coverage": "vendor/bin/pest --coverage",
+        "format": "vendor/bin/pint",
+        "format-check": "vendor/bin/pint --test"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "phpstan/extension-installer": true
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "MathiasOnea\\Rulebook\\Providers\\RulebookServiceProvider"
+            ]
+        }
+    },
+    "prefer-stable": true
+}
