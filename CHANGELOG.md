@@ -2,7 +2,7 @@
 
 All notable changes to `laravel-rulebook` will be documented in this file.
 
-## 0.1.0 - Unreleased
+## 0.1.0 - 2026-07-17
 
 - Add application-defined, container-injected rulebooks and rules.
 - Add typed subjects, optional contexts, and outcomes with PHPStan generics.
