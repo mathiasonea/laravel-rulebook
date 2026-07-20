@@ -19,9 +19,11 @@ composer require mathiasonea/laravel-rulebook
 
 Laravel discovers the package provider automatically. There is no configuration to publish, migration to run, facade, or global registry.
 
-## Define a rulebook
+## A versioned pricing example
 
-A rulebook is an application-owned class. Its PHPStan annotation establishes the subject, context, and outcome types for every resolution.
+Suppose an Austrian electric-vehicle price changes every calendar year. The base price, incentive, and battery fee can all change, while a general Austrian price and a global default must remain available as fallbacks.
+
+Model each policy version as its own rule. The rulebook then becomes a readable history of every policy that can govern the decision:
 
 ```php
 namespace App\Pricing;
@@ -39,45 +41,33 @@ final class VehiclePricingRulebook extends Rulebook
         return [
             DefaultVehiclePrice::class,
             AustrianVehiclePrice::class,
-            AustrianElectricVehiclePrice::class,
+            AustrianElectricVehiclePrice2025::class,
+            AustrianElectricVehiclePrice2026::class,
+            AustrianElectricVehiclePrice2027::class,
         ];
     }
 }
 ```
 
-Rule order does not decide the winner. Every applicable rule participates in explicit priority resolution.
+The PHPStan annotation establishes the subject, context, and outcome types for every rule in the rulebook. Rule order does not decide the winner; every applicable rule participates in explicit priority resolution.
 
-## Define rules
+## Share stable policy, isolate yearly changes
 
-Extend the root `Rule` class and return a result with a mandatory explanation. A rule is valid forever and has priority `0` unless it overrides those defaults.
+Common eligibility can live in an abstract application-owned rule. The calculation delegates the values that are expected to change to the concrete yearly policy:
 
 ```php
 namespace App\Pricing;
 
 use App\Models\Vehicle;
-use DateTimeImmutable;
 use MathiasOnea\Rulebook\Inputs\RuleInput;
-use MathiasOnea\Rulebook\Periods\ValidityPeriod;
 use MathiasOnea\Rulebook\Results\RuleResult;
 use MathiasOnea\Rulebook\Rule;
 
 /**
  * @extends Rule<Vehicle, VehiclePricingContext, Money>
  */
-final class AustrianElectricVehiclePrice extends Rule
+abstract class AustrianElectricVehiclePrice extends Rule
 {
-    public function __construct(
-        private ExchangeRates $exchangeRates,
-    ) {}
-
-    public function validity(): ValidityPeriod
-    {
-        return ValidityPeriod::between(
-            from: new DateTimeImmutable('2026-01-01T00:00:00+01:00'),
-            until: new DateTimeImmutable('2027-01-01T00:00:00+01:00'),
-        );
-    }
-
     public function priority(): int
     {
         return 100;
@@ -101,14 +91,83 @@ final class AustrianElectricVehiclePrice extends Rule
         }
 
         return RuleResult::applies(
-            outcome: Money::EUR(32_500_00),
-            reason: 'The 2026 Austrian electric-vehicle price applies.',
+            outcome: Money::EUR(
+                $this->basePriceInCents()
+                - $this->incentiveInCents()
+                + ($vehicle->batteryCapacityInKwh * $this->batteryFeePerKwhInCents()),
+            ),
+            reason: "The {$this->policyYear()} Austrian electric-vehicle price applies.",
         );
     }
+
+    abstract protected function policyYear(): int;
+
+    abstract protected function basePriceInCents(): int;
+
+    abstract protected function incentiveInCents(): int;
+
+    abstract protected function batteryFeePerKwhInCents(): int;
 }
 ```
 
-The rule class string is resolved through Laravel's container, so constructor injection works without package-specific registration. Exceptions from a rule or one of its dependencies bubble unchanged; an operational failure is never converted into “does not apply.”
+Each year supplies its own validity window and parameters:
+
+```php
+use DateTimeImmutable;
+use MathiasOnea\Rulebook\Periods\ValidityPeriod;
+
+final class AustrianElectricVehiclePrice2025 extends AustrianElectricVehiclePrice
+{
+    public function validity(): ValidityPeriod
+    {
+        return ValidityPeriod::between(
+            from: new DateTimeImmutable('2025-01-01T00:00:00+01:00'),
+            until: new DateTimeImmutable('2026-01-01T00:00:00+01:00'),
+        );
+    }
+
+    protected function policyYear(): int { return 2025; }
+    protected function basePriceInCents(): int { return 35_000_00; }
+    protected function incentiveInCents(): int { return 4_000_00; }
+    protected function batteryFeePerKwhInCents(): int { return 0; }
+}
+
+final class AustrianElectricVehiclePrice2026 extends AustrianElectricVehiclePrice
+{
+    public function validity(): ValidityPeriod
+    {
+        return ValidityPeriod::between(
+            from: new DateTimeImmutable('2026-01-01T00:00:00+01:00'),
+            until: new DateTimeImmutable('2027-01-01T00:00:00+01:00'),
+        );
+    }
+
+    protected function policyYear(): int { return 2026; }
+    protected function basePriceInCents(): int { return 35_000_00; }
+    protected function incentiveInCents(): int { return 2_800_00; }
+    protected function batteryFeePerKwhInCents(): int { return 4_00; }
+}
+
+final class AustrianElectricVehiclePrice2027 extends AustrianElectricVehiclePrice
+{
+    public function validity(): ValidityPeriod
+    {
+        return ValidityPeriod::between(
+            from: new DateTimeImmutable('2027-01-01T00:00:00+01:00'),
+            until: new DateTimeImmutable('2028-01-01T00:00:00+01:00'),
+        );
+    }
+
+    protected function policyYear(): int { return 2027; }
+    protected function basePriceInCents(): int { return 35_500_00; }
+    protected function incentiveInCents(): int { return 1_000_00; }
+    protected function batteryFeePerKwhInCents(): int { return 5_00; }
+}
+```
+
+This keeps a historical policy intact after a new year begins. If the formula itself changes in 2027—not just its parameters—the 2027 class can override the calculation without adding `if ($year === ...)` branches to older rules.
+
+The rule class strings are resolved through Laravel's container, so the shared rule or concrete yearly rules can use constructor injection without package-specific registration. Exceptions from a rule or one of its dependencies bubble unchanged; an operational failure is never converted into “does not apply.”
 
 ## Resolve a decision
 
@@ -136,10 +195,38 @@ Resolve historical or future decisions with a `DateTimeInterface`:
 
 ```php
 $decision = $rulebook->resolveAt(
-    subject: $vehicle,
-    at: $invoice->issued_at,
-    context: $context,
+    subject: new Vehicle(
+        electric: true,
+        batteryCapacityInKwh: 75,
+    ),
+    at: new DateTimeImmutable('2026-06-15T10:00:00+02:00'),
+    context: new VehiclePricingContext(country: Country::Austria),
 );
+
+$decision->winningRule();          // an AustrianElectricVehiclePrice2026 instance
+$decision->outcome();              // EUR 32,500.00
+$decision->winningResult()->reason();
+// "The 2026 Austrian electric-vehicle price applies."
+```
+
+At that instant, the 2025 and 2027 rules are outside their validity windows and are not invoked. The 2026 rule wins with priority `100`; the general Austrian and default prices can still be inspected as applicable but shadowed fallbacks.
+
+| Rule | What happens on 2026-06-15 | Role in the decision |
+| --- | --- | --- |
+| `DefaultVehiclePrice` | Applies | Shadowed fallback |
+| `AustrianVehiclePrice` | Applies | Shadowed fallback |
+| `AustrianElectricVehiclePrice2025` | Outside its validity window; not invoked | Inapplicable |
+| `AustrianElectricVehiclePrice2026` | Applies | Winner |
+| `AustrianElectricVehiclePrice2027` | Outside its validity window; not invoked | Inapplicable |
+
+The same rulebook can reproduce decisions under earlier or later policy versions without changing application code:
+
+```php
+$rulebook->resolveAt($vehicle, new DateTimeImmutable('2025-07-01T00:00:00+02:00'), $context)
+    ->winningRule(); // AustrianElectricVehiclePrice2025
+
+$rulebook->resolveAt($vehicle, new DateTimeImmutable('2027-07-01T00:00:00+02:00'), $context)
+    ->winningRule(); // AustrianElectricVehiclePrice2027
 ```
 
 The returned decision exposes the winner and the complete evaluation:
@@ -261,19 +348,16 @@ Applicability is stored separately from the outcome, so this is not confused wit
 
 “Now” resolutions use Carbon's clock, including `CarbonImmutable::setTestNow()` in tests. Explicit `DateTimeInterface` values passed to `resolveAt()` and `evaluateAt()` are copied without changing their instant.
 
-## Deliberate non-goals
-
-Version 0.1 does not provide:
+## Roadmap
 
 - Database, JSON, YAML, or UI-authored rules
-- Persistence, migrations, caching, events, queues, or auto-discovery
-- An expression language or arbitrary-code evaluator
-- Automatic specificity scoring
+- Optional persistence, caching, events, queues, or rule auto-discovery
+- A constrained expression language for rules that should not be PHP classes
+- Alternative specificity or conflict-resolution strategies
 - Multi-rule outcome composition, pipelines, discounts, or transformations
-- A facade, global registry, or publishable configuration
-- Replacements for Laravel validation, policies, or gates
+- Convenience integrations such as a facade, registry, or publishable configuration
 
-If a decision needs several outcomes to be combined in sequence, model that workflow outside Rulebook or use a pipeline-oriented abstraction.
+Have a concrete use case? [Open an issue](https://github.com/mathiasonea/laravel-rulebook/issues/new/choose) and describe the decision you are modelling, the constraints involved, and where the current API falls short. Focused [pull requests](https://github.com/mathiasonea/laravel-rulebook/pulls) are welcome; please start with an issue or [discussion](https://github.com/mathiasonea/laravel-rulebook/discussions) before investing in a larger change.
 
 ## Implementation clarifications
 
