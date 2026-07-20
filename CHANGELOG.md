@@ -2,6 +2,13 @@
 
 All notable changes to `laravel-rulebook` will be documented in this file.
 
+## v0.1.1 - 2026-07-20
+
+Documentation release.
+
+- Expand the Austrian electric-vehicle example with yearly policy rules, changing parameters, historical resolution, and decision inspection.
+- Reframe future feature ideas as a roadmap and invite issues, discussions, and pull requests.
+
 ## v0.1.0 - 2026-07-17
 
 Initial release of Laravel Rulebook.
