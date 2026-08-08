@@ -2,6 +2,14 @@
 
 All notable changes to `laravel-rulebook` will be documented in this file.
 
+## v0.1.3 - 2026-08-09
+
+Documentation and discovery release.
+
+- Add the project page and versioned-business-rules architecture guide as distinct package resources.
+- Link the runnable Austrian electric-vehicle pricing application with its 2025, 2026, and 2027 policies.
+- Use the project page as the canonical Composer and GitHub homepage.
+
 ## v0.1.2 - 2026-08-09
 
 Distribution and documentation release.

@@ -69,9 +69,11 @@ Laravel discovers the package provider automatically. There is no configuration 
 
 Rulebook is code-defined and resolves exactly one winning rule. It does not provide a DSL, database- or UI-authored rules, workflow or state-machine behavior, or multi-rule outcome composition.
 
-## Runnable example
+## Resources
 
-The companion [Austrian EV pricing example](https://github.com/mathiasonea/laravel-rulebook-austrian-ev-example) is a focused Laravel 12 application installed from Packagist. Run one Artisan command to compare the 2025, 2026, and 2027 policies and inspect the winning rule, shadowed fallbacks, skipped validity windows, and explanation.
+- [Project page](https://mathiasonea.com/en/open-source/laravel-rulebook) — the permanent overview of Laravel Rulebook.
+- [Architecture guide](https://mathiasonea.com/en/insights/versioned-business-rules-in-laravel) — a practical explanation of replacing dated conditionals with auditable, versioned rules.
+- [Runnable Austrian EV example](https://github.com/mathiasonea/laravel-rulebook-austrian-ev-example) — a focused Laravel 12 application comparing the 2025, 2026, and 2027 policies, including fallbacks and skipped validity windows.
 
 ## Versioned pricing in practice
 
