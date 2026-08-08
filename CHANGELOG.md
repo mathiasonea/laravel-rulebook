@@ -2,6 +2,14 @@
 
 All notable changes to `laravel-rulebook` will be documented in this file.
 
+## v0.1.2 - 2026-08-09
+
+Distribution and documentation release.
+
+- Lead the documentation with the historical reproducibility problem, a concise `resolveAt()` example, practical usage triggers, and intentional scope.
+- Improve Composer and GitHub discovery metadata with focused keywords, support links, badges, repository topics, and a Packagist homepage.
+- Add a Mathias Onea CI-styled social preview and a concrete feedback invitation for effective-date business logic.
+
 ## v0.1.1 - 2026-07-20
 
 Documentation release.
