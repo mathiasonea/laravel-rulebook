@@ -2,52 +2,89 @@
   <title id="title">Laravel Rulebook social preview</title>
   <desc id="description">Business rules change. Old decisions still need to make sense.</desc>
 
-  <rect width="1280" height="640" fill="#0a0a0a"/>
-  <rect width="16" height="640" fill="#d7ff3f"/>
+  <rect width="1280" height="640" fill="#f3efe7"/>
+  <rect width="1280" height="10" fill="#d93c22"/>
 
-  <g font-family="Arial, Helvetica, sans-serif">
-    <text x="64" y="68" fill="#d7ff3f" font-size="18" font-weight="700" letter-spacing="2">LARAVEL / RULEBOOK</text>
-    <text x="1216" y="68" fill="#8d8d86" font-size="15" text-anchor="end" letter-spacing="1">CODE-DEFINED BUSINESS RULES</text>
+  <g font-family="'Instrument Sans', Arial, Helvetica, sans-serif">
+    <rect x="64" y="34" width="54" height="54" rx="7" fill="#fff" stroke="#d8d1c7"/>
+    <g transform="translate(73 54) scale(0.0878) translate(-295 -325)" aria-hidden="true">
+      <polygon fill="#999" points="696.19 396.19 634.56 457.82 611.9 457.82 673.54 396.19 610.57 333.23 633.23 333.23 696.19 396.19"/>
+      <polygon fill="#999" points="389.44 457.82 366.78 457.82 303.81 394.86 365.44 333.23 388.1 333.23 326.46 394.86 389.44 457.82"/>
+      <path fill="#999" d="M470.19,429a44.86,44.86,0,0,0,60.36,0,54.44,54.44,0,0,1-8-14.7,28.88,28.88,0,0,1-44.34,0A54.44,54.44,0,0,1,470.19,429Z"/>
+      <path fill="#f72121" d="M381.55,395.75v36.94a8,8,0,0,0,8,8h0a8,8,0,0,0,8-8V395.75a29,29,0,0,1,24.36-28.57l.54-.09.72-.09.37,0h.18l.18,0,.18,0h.18l.56,0,.37,0h1.3c.9,0,1.8.05,2.68.13a29,29,0,0,1,26.26,28.81,44.6,44.6,0,0,0,8,25.56,44.59,44.59,0,0,0,8-25.32v-.24a29,29,0,0,1,20.31-27.62,27.67,27.67,0,0,1,3.67-.89l.27-.05h0l.24,0H496l.19,0,.1,0,.44-.05.16,0h.05l.17,0,.26,0,.2,0h.36l.3,0h.25l.24,0h3l.37,0,.56,0h.18l.18,0,.18,0h.18l.36,0h0l.72.09.54.09a29,29,0,0,1,24.36,28.57,44.6,44.6,0,0,0,8,25.56,44.88,44.88,0,0,0,.31-50.67l-.15-.22-.16-.23h0a45.08,45.08,0,0,0-27-18.28h0l-.55-.12h0l-.55-.12h0l-.48-.09-.11,0-.52-.1-.55-.09-.28,0-.84-.12-.54-.07h0l-.27,0L505,351h0l-.53-.05h0l-.29,0-.57,0-.25,0h-.08l-.23,0h-5l-.67,0-.33,0-.31,0h0l-.44,0-.3,0h-.14l-.35,0h-.08l-.4,0h0a45.05,45.05,0,0,0-31.52,19.06,45,45,0,0,0-32.11-19.12,45.4,45.4,0,0,0-4.83-.26h-2.62l-.19,0h-.12l-.24,0-.28,0-.28,0-.92.09-.22,0-.51.06H421l-.21,0-.25,0h-.06l-.25,0-.28,0-.21,0h-.1l-.19,0-.34.06-.2,0c-.49.08-1,.18-1.45.27l-.27.06-.27.06-.24.05-.1,0-.18,0-.22.06-.12,0-.23.06-.27.07-.27.07-.27.07-.27.07-.78.22h-.05l-.5.15-.25.08h0l-.24.08-.27.08-.26.09-.78.26a45.21,45.21,0,0,0-20.26,14.46,1.71,1.71,0,0,1-.11.14l-.13.17c-.53.67-1,1.36-1.52,2.06A44.66,44.66,0,0,0,381.55,395.75Z"/>
+      <polygon fill="#f72121" points="602.38 333 553.98 458.05 536.75 458.05 585.15 333 602.38 333"/>
+    </g>
+    <text x="134" y="69" fill="#171513" font-size="18" font-weight="700">Mathias Onea</text>
+    <text x="1216" y="69" fill="#5f574d" font-size="14" font-weight="600" text-anchor="end" letter-spacing="1.6">OPEN SOURCE / LARAVEL PACKAGE</text>
+    <line x1="64" y1="110" x2="1216" y2="110" stroke="#d8d1c7"/>
 
-    <line x1="64" y1="96" x2="1216" y2="96" stroke="#3a3a36" stroke-width="2"/>
+    <text x="64" y="158" fill="#d93c22" font-size="14" font-weight="700" letter-spacing="2.4">VERSIONED BUSINESS RULES FOR LARAVEL</text>
+    <text x="64" y="230" fill="#171513" font-size="64" font-weight="600">Laravel Rulebook</text>
 
-    <text x="60" y="205" fill="#f4f2e9" font-size="82" font-weight="700">BUSINESS RULES</text>
-    <text x="60" y="294" fill="#f4f2e9" font-size="82" font-weight="700">CHANGE.</text>
+    <text x="64" y="305" fill="#171513" font-size="38" font-weight="600">Business rules change.</text>
+    <text x="64" y="352" fill="#171513" font-size="38" font-weight="600">Old decisions still need</text>
+    <text x="64" y="399" fill="#171513" font-size="38" font-weight="600">to make sense.</text>
 
-    <rect x="62" y="333" width="754" height="51" fill="#d7ff3f"/>
-    <path d="M816 333 H852 L816 384Z" fill="#d7ff3f"/>
-    <text x="78" y="368" fill="#0a0a0a" font-size="25" font-weight="700">OLD DECISIONS STILL NEED TO MAKE SENSE.</text>
+    <rect x="64" y="438" width="656" height="64" rx="6" fill="#171513"/>
+    <text x="88" y="478" fill="#f3efe7" font-family="'Courier New', Courier, monospace" font-size="17" font-style="normal">composer require mathiasonea/laravel-rulebook</text>
 
-    <text x="934" y="178" fill="#74746e" font-family="Menlo, Monaco, monospace" font-size="15">$rulebook</text>
-    <text x="934" y="213" fill="#f4f2e9" font-family="Menlo, Monaco, monospace" font-size="24" font-weight="700">-&gt;resolveAt(</text>
-    <text x="966" y="249" fill="#a7a7a0" font-family="Menlo, Monaco, monospace" font-size="18">$subject,</text>
-    <text x="966" y="280" fill="#d7ff3f" font-family="Menlo, Monaco, monospace" font-size="18">$at</text>
-    <text x="1020" y="280" fill="#70706b" font-family="Menlo, Monaco, monospace" font-size="13">// 2026-06-15</text>
-    <text x="934" y="316" fill="#f4f2e9" font-family="Menlo, Monaco, monospace" font-size="24" font-weight="700">);</text>
+    <g transform="translate(64 544)">
+      <line x1="0" y1="0" x2="656" y2="0" stroke="#d8d1c7"/>
+      <g transform="translate(0 26)">
+        <text fill="#d93c22" font-size="12" font-weight="700">01</text>
+        <text x="31" fill="#171513" font-size="13" font-weight="700">CODE-DEFINED</text>
+      </g>
+      <g transform="translate(166 26)">
+        <text fill="#d93c22" font-size="12" font-weight="700">02</text>
+        <text x="31" fill="#171513" font-size="13" font-weight="700">TIME-AWARE</text>
+      </g>
+      <g transform="translate(326 26)">
+        <text fill="#d93c22" font-size="12" font-weight="700">03</text>
+        <text x="31" fill="#171513" font-size="13" font-weight="700">DETERMINISTIC</text>
+      </g>
+      <g transform="translate(512 26)">
+        <text fill="#d93c22" font-size="12" font-weight="700">04</text>
+        <text x="31" fill="#171513" font-size="13" font-weight="700">EXPLAINABLE</text>
+      </g>
+    </g>
   </g>
 
-  <g transform="translate(64 455)" font-family="Menlo, Monaco, monospace">
-    <text x="0" y="-23" fill="#70706b" font-size="13" letter-spacing="1">RULE HISTORY / EFFECTIVE DATE</text>
+  <g transform="translate(808 142)" font-family="'Instrument Sans', Arial, Helvetica, sans-serif">
+    <rect width="408" height="438" rx="8" fill="#fff" stroke="#d8d1c7"/>
+    <rect x="18" y="18" width="372" height="284" rx="11" fill="#171513"/>
 
-    <line x1="0" y1="22" x2="1152" y2="22" stroke="#51514c" stroke-width="2"/>
+    <text x="42" y="57" fill="#ff6a4b" font-size="12" font-weight="700" letter-spacing="1.8">RESOLVE AT / 2026-06-15</text>
 
-    <rect x="0" y="14" width="16" height="16" fill="#f4f2e9"/>
-    <text x="0" y="68" fill="#8d8d86" font-size="16">2025</text>
-    <text x="0" y="92" fill="#5e5e59" font-size="13">HISTORICAL</text>
+    <rect x="68" y="144" width="204" height="12" fill="#ff6a4b"/>
+    <polygon points="139.8,145.8 197.8,87.8 206.2,96.2 148.2,154.2" fill="#ff6a4b"/>
+    <polygon points="148.2,145.8 206.2,203.8 197.8,212.2 139.8,154.2" fill="#ff6a4b"/>
+    <g fill="#f3efe7">
+      <circle cx="68" cy="150" r="13"/>
+      <circle cx="202" cy="92" r="13"/>
+      <circle cx="202" cy="208" r="13"/>
+    </g>
+    <rect x="267" y="111" width="92" height="78" rx="8" fill="#ff6a4b"/>
+    <polygon points="290.5,143.5 307.5,160.5 300.5,167.5 283.5,150.5" fill="#171513"/>
+    <polygon points="299.5,160.5 334.5,125.5 341.5,132.5 306.5,167.5" fill="#171513"/>
 
-    <rect x="420" y="0" width="312" height="110" fill="#d7ff3f"/>
-    <path d="M420 0 L444 -24 H756 L732 0Z" fill="#d7ff3f"/>
-    <text x="446" y="37" fill="#0a0a0a" font-size="16" font-weight="700">2026 / SELECTED</text>
-    <text x="446" y="67" fill="#0a0a0a" font-size="13">ONE WINNER</text>
-    <text x="446" y="90" fill="#0a0a0a" font-size="13">COMPLETE EVALUATION</text>
+    <text x="42" y="270" fill="#f3efe7" font-size="26" font-weight="700">One explained winner.</text>
 
-    <rect x="1136" y="14" width="16" height="16" fill="#f4f2e9"/>
-    <text x="1152" y="68" fill="#8d8d86" font-size="16" text-anchor="end">2027</text>
-    <text x="1152" y="92" fill="#5e5e59" font-size="13" text-anchor="end">FUTURE</text>
+    <g transform="translate(0 320)">
+      <line x1="0" y1="0" x2="408" y2="0" stroke="#d8d1c7"/>
+      <line x1="204" y1="0" x2="204" y2="118" stroke="#d8d1c7"/>
+      <line x1="0" y1="59" x2="408" y2="59" stroke="#d8d1c7"/>
+
+      <text x="18" y="24" fill="#d93c22" font-size="11" font-weight="700">LARAVEL</text>
+      <text x="18" y="45" fill="#171513" font-size="14">12–13</text>
+      <text x="222" y="24" fill="#d93c22" font-size="11" font-weight="700">PHP</text>
+      <text x="222" y="45" fill="#171513" font-size="14">8.3+</text>
+
+      <text x="18" y="83" fill="#d93c22" font-size="11" font-weight="700">LICENSE</text>
+      <text x="18" y="104" fill="#171513" font-size="14">MIT</text>
+      <text x="222" y="83" fill="#d93c22" font-size="11" font-weight="700">SCOPE</text>
+      <text x="222" y="104" fill="#171513" font-size="14">One winning rule</text>
+    </g>
   </g>
 
-  <g font-family="Menlo, Monaco, monospace" font-size="13">
-    <text x="64" y="609" fill="#6d6d67">github.com/mathiasonea/laravel-rulebook</text>
-    <text x="1216" y="609" fill="#d7ff3f" text-anchor="end">TIME-AWARE / DETERMINISTIC / EXPLAINABLE</text>
-  </g>
+  <text x="64" y="616" fill="#6a6258" font-family="'Instrument Sans', Arial, Helvetica, sans-serif" font-size="13">github.com/mathiasonea/laravel-rulebook</text>
 </svg>
