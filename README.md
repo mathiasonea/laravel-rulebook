@@ -1,15 +1,56 @@
 # Laravel Rulebook
 
-Select which business rule applies to an object at a given time—and understand why.
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/mathiasonea/laravel-rulebook.svg?style=flat-square)](https://packagist.org/packages/mathiasonea/laravel-rulebook)
+[![Total Downloads](https://img.shields.io/packagist/dt/mathiasonea/laravel-rulebook.svg?style=flat-square)](https://packagist.org/packages/mathiasonea/laravel-rulebook)
+[![Tests](https://github.com/mathiasonea/laravel-rulebook/actions/workflows/run-tests.yml/badge.svg?branch=main)](https://github.com/mathiasonea/laravel-rulebook/actions/workflows/run-tests.yml)
+[![PHP Version](https://img.shields.io/packagist/dependency-v/mathiasonea/laravel-rulebook/php.svg?style=flat-square)](https://packagist.org/packages/mathiasonea/laravel-rulebook)
+[![License](https://img.shields.io/packagist/l/mathiasonea/laravel-rulebook.svg?style=flat-square)](LICENSE.md)
 
-Laravel Rulebook is a small, Laravel-first package for decisions where exactly one rule must govern a subject. Your application defines the rulebook, rules, optional context, and outcome type. The package resolves rule dependencies through Laravel's container, applies explicit priorities and time windows, and retains the explanation from every rule it considers.
+**Business rules change. Old decisions still need to make sense.**
 
-It is intentionally not a general-purpose rules engine.
+Laravel Rulebook selects which code-defined business rule applies to a subject at any point in time—and explains why.
 
-## Requirements
+Editing dated conditionals in place destroys the reproducibility and explainability of historical decisions. As policies accumulate, overlaps and fallbacks become accidental: the same invoice, quote, or eligibility check can produce a different answer after the code changes, with no durable account of which rule won.
 
-- PHP 8.3 or newer
-- Laravel 12 or 13
+Rulebook keeps those decisions **code-defined**, **time-aware**, **deterministic**, and **explainable**. Every resolution has one explicit winner, a decision time, and the complete evaluation behind it.
+
+## Before and after
+
+Without an explicit model, effective-date logic tends to grow inside one branching path:
+
+```php
+if ($invoice->issued_at < new DateTimeImmutable('2026-01-01T00:00:00+01:00')) {
+    return $this->priceUnder2025Policy($vehicle);
+}
+
+if ($invoice->issued_at < new DateTimeImmutable('2027-01-01T00:00:00+01:00')) {
+    return $this->priceUnder2026Policy($vehicle);
+}
+
+return $this->currentPrice($vehicle);
+```
+
+With Rulebook, each policy version remains a named rule and the decision date is part of resolution:
+
+```php
+$decision = $vehiclePricingRulebook->resolveAt(
+    subject: $vehicle,
+    at: $invoice->issued_at,
+    context: $pricingContext,
+);
+
+$price = $decision->outcome();
+$rule = $decision->winningRule();
+$reason = $decision->winningResult()->reason();
+```
+
+## Use it when
+
+- Effective-date conditionals keep accumulating in application services.
+- A policy is edited in place even though old decisions must remain reproducible.
+- Several rules can apply and the intended winner or fallback must be explicit.
+- A decision varies by subject, context, and point in time.
+- You need to reconstruct why an invoice, price, entitlement, or eligibility decision was made.
 
 ## Installation
 
@@ -19,7 +60,16 @@ composer require mathiasonea/laravel-rulebook
 
 Laravel discovers the package provider automatically. There is no configuration to publish, migration to run, facade, or global registry.
 
-## A versioned pricing example
+## Requirements
+
+- PHP 8.3 or newer
+- Laravel 12 or 13
+
+## Scope
+
+Rulebook is code-defined and resolves exactly one winning rule. It does not provide a DSL, database- or UI-authored rules, workflow or state-machine behavior, or multi-rule outcome composition.
+
+## Versioned pricing in practice
 
 Suppose an Austrian electric-vehicle price changes every calendar year. The base price, incentive, and battery fee can all change, while a general Austrian price and a global default must remain available as fallbacks.
 
@@ -51,7 +101,7 @@ final class VehiclePricingRulebook extends Rulebook
 
 The PHPStan annotation establishes the subject, context, and outcome types for every rule in the rulebook. Rule order does not decide the winner; every applicable rule participates in explicit priority resolution.
 
-## Share stable policy, isolate yearly changes
+### Share stable policy, isolate yearly changes
 
 Common eligibility can live in an abstract application-owned rule. The calculation delegates the values that are expected to change to the concrete yearly policy:
 
@@ -169,27 +219,7 @@ This keeps a historical policy intact after a new year begins. If the formula it
 
 The rule class strings are resolved through Laravel's container, so the shared rule or concrete yearly rules can use constructor injection without package-specific registration. Exceptions from a rule or one of its dependencies bubble unchanged; an operational failure is never converted into “does not apply.”
 
-## Resolve a decision
-
-Inject the application-defined rulebook wherever the decision is needed:
-
-```php
-final class CalculateVehiclePrice
-{
-    public function __construct(
-        private VehiclePricingRulebook $rulebook,
-    ) {}
-
-    public function execute(
-        Vehicle $vehicle,
-        VehiclePricingContext $context,
-    ): Money {
-        return $this->rulebook
-            ->resolveNow($vehicle, $context)
-            ->outcome();
-    }
-}
-```
+### Resolve and inspect a dated decision
 
 Resolve historical or future decisions with a `DateTimeInterface`:
 
@@ -357,7 +387,7 @@ Applicability is stored separately from the outcome, so this is not confused wit
 - Multi-rule outcome composition, pipelines, discounts, or transformations
 - Convenience integrations such as a facade, registry, or publishable configuration
 
-Have a concrete use case? [Open an issue](https://github.com/mathiasonea/laravel-rulebook/issues/new/choose) and describe the decision you are modelling, the constraints involved, and where the current API falls short. Focused [pull requests](https://github.com/mathiasonea/laravel-rulebook/pulls) are welcome; please start with an issue or [discussion](https://github.com/mathiasonea/laravel-rulebook/discussions) before investing in a larger change.
+Already maintaining effective-date business logic? Model one real decision with Rulebook, then [open an issue](https://github.com/mathiasonea/laravel-rulebook/issues/new/choose) or start a [discussion](https://github.com/mathiasonea/laravel-rulebook/discussions) and tell us where the API feels heavy or breaks down. Focused [pull requests](https://github.com/mathiasonea/laravel-rulebook/pulls) are welcome; please discuss larger changes first.
 
 ## Implementation clarifications
 

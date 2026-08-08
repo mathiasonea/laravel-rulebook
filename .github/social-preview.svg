@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-labelledby="title description">
+  <title id="title">Laravel Rulebook social preview</title>
+  <desc id="description">Business rules change. Old decisions still need to make sense.</desc>
+  <defs>
+    <linearGradient id="background" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0" stop-color="#081225"/>
+      <stop offset="0.55" stop-color="#0b1830"/>
+      <stop offset="1" stop-color="#10253d"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0" stop-color="#37d6c0"/>
+      <stop offset="1" stop-color="#a8e063"/>
+    </linearGradient>
+    <filter id="glow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="9" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1280" height="640" fill="url(#background)"/>
+  <circle cx="1148" cy="-26" r="310" fill="#1e4761" opacity="0.22"/>
+  <circle cx="1220" cy="610" r="260" fill="#17685f" opacity="0.13"/>
+  <path d="M0 570 C250 510 360 620 610 560 S1040 490 1280 560 V640 H0Z" fill="#0a1428" opacity="0.9"/>
+
+  <g font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">
+    <rect x="72" y="68" width="164" height="34" rx="17" fill="#132842" stroke="#2f5370"/>
+    <circle cx="93" cy="85" r="5" fill="#4be0c7"/>
+    <text x="109" y="91" fill="#b8c8d9" font-size="15" font-weight="700" letter-spacing="1.5">LARAVEL PACKAGE</text>
+
+    <text x="72" y="166" fill="#ffffff" font-size="42" font-weight="700">Laravel Rulebook</text>
+    <rect x="72" y="188" width="86" height="5" rx="2.5" fill="url(#accent)"/>
+
+    <text x="72" y="270" fill="#f8fbff" font-size="53" font-weight="700">Business rules change.</text>
+    <text x="72" y="332" fill="#f8fbff" font-size="46" font-weight="700">Old decisions still need</text>
+    <text x="72" y="388" fill="#f8fbff" font-size="46" font-weight="700">to make sense.</text>
+
+    <text x="72" y="453" fill="#9fb2c8" font-size="23" font-weight="500">Code-defined</text>
+    <circle cx="237" cy="446" r="3.5" fill="#4be0c7"/>
+    <text x="258" y="453" fill="#9fb2c8" font-size="23" font-weight="500">Time-aware</text>
+    <circle cx="401" cy="446" r="3.5" fill="#4be0c7"/>
+    <text x="422" y="453" fill="#9fb2c8" font-size="23" font-weight="500">Deterministic</text>
+    <circle cx="595" cy="446" r="3.5" fill="#4be0c7"/>
+    <text x="616" y="453" fill="#9fb2c8" font-size="23" font-weight="500">Explainable</text>
+  </g>
+
+  <g transform="translate(818 92)" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">
+    <rect x="0" y="0" width="390" height="400" rx="30" fill="#0b172b" stroke="#29425a" stroke-width="2"/>
+    <text x="34" y="55" fill="#758ca3" font-size="15" font-weight="700" letter-spacing="1.4">RULE HISTORY</text>
+    <line x1="74" y1="101" x2="74" y2="331" stroke="#29445b" stroke-width="4" stroke-linecap="round"/>
+
+    <g>
+      <circle cx="74" cy="120" r="9" fill="#12263c" stroke="#4f6e86" stroke-width="3"/>
+      <text x="110" y="115" fill="#8095a9" font-size="17" font-weight="700">2025</text>
+      <text x="110" y="140" fill="#60768b" font-size="15">Austrian EV policy</text>
+    </g>
+
+    <g>
+      <circle cx="74" cy="215" r="22" fill="#123f43" opacity="0.8" filter="url(#glow)"/>
+      <circle cx="74" cy="215" r="11" fill="#4be0c7"/>
+      <path d="M69 215 l4 4 l8 -9" fill="none" stroke="#082223" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="104" y="181" width="225" height="70" rx="14" fill="#112e3b" stroke="#2c746c"/>
+      <text x="126" y="210" fill="#baf4e5" font-size="17" font-weight="750">2026 · selected</text>
+      <text x="126" y="232" fill="#7fb5ae" font-size="14">Effective at decision time</text>
+    </g>
+
+    <g>
+      <circle cx="74" cy="310" r="9" fill="#12263c" stroke="#4f6e86" stroke-width="3"/>
+      <text x="110" y="305" fill="#8095a9" font-size="17" font-weight="700">2027</text>
+      <text x="110" y="330" fill="#60768b" font-size="15">Austrian EV policy</text>
+    </g>
+
+    <rect x="34" y="355" width="322" height="1" fill="#233a4f"/>
+    <text x="34" y="382" fill="#657d93" font-size="14">One winner · Complete evaluation</text>
+  </g>
+
+  <text x="72" y="574" fill="#6f8499" font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="18">github.com/mathiasonea/laravel-rulebook</text>
+</svg>

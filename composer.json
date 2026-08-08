@@ -1,10 +1,15 @@
 {
     "name": "mathiasonea/laravel-rulebook",
-    "description": "Select which business rule applies to an object at a given time and understand why.",
+    "description": "A Laravel package for selecting which code-defined business rule applies to a subject at any point in time—and explaining why.",
     "keywords": [
-        "Mathias Onea",
+        "business-rules",
+        "effective-dates",
+        "eligibility",
+        "explainable-decisions",
         "laravel",
-        "laravel-rulebook"
+        "pricing",
+        "rule-resolution",
+        "temporal-rules"
     ],
     "homepage": "https://github.com/mathiasonea/laravel-rulebook",
     "license": "MIT",
@@ -15,6 +20,13 @@
             "role": "Developer"
         }
     ],
+    "support": {
+        "issues": "https://github.com/mathiasonea/laravel-rulebook/issues",
+        "forum": "https://github.com/mathiasonea/laravel-rulebook/discussions",
+        "source": "https://github.com/mathiasonea/laravel-rulebook",
+        "docs": "https://github.com/mathiasonea/laravel-rulebook#readme",
+        "security": "https://github.com/mathiasonea/laravel-rulebook/security/policy"
+    },
     "require": {
         "php": "^8.3",
         "illuminate/contracts": "^12.0|^13.0",
