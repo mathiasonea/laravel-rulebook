@@ -310,11 +310,13 @@ Resolution throws:
 `NoMatchingRule` and `AmbiguousRuleMatch` both retain the exact `Evaluation` on their public `$evaluation` property and through `evaluation()`. Registration order never breaks an equal-priority tie.
 
 ```php
+use Illuminate\Support\Facades\Log;
+
 try {
     $decision = $rulebook->resolveNow($vehicle, $context);
 } catch (AmbiguousRuleMatch $exception) {
     foreach ($exception->evaluation->evaluations() as $ruleEvaluation) {
-        report([
+        Log::warning('Ambiguous rulebook evaluation.', [
             'rule' => $ruleEvaluation->rule()->key(),
             'applies' => $ruleEvaluation->isApplicable(),
             'reason' => $ruleEvaluation->result()->reason(),
@@ -322,6 +324,28 @@ try {
     }
 }
 ```
+
+## Rule authoring contract
+
+Rulebook evaluates every rule inside its validity period, including lower-priority fallbacks, so that the returned evaluation explains the complete decision. Treat `evaluate()` as a deterministic, side-effect-free operation:
+
+- Use `$input->at` instead of reading the current clock inside a rule.
+- Do not send messages, write data, or trigger other side effects from `evaluate()`.
+- Keep `key()`, `priority()`, and `validity()` stable for the lifetime of an evaluation.
+- Make reasons safe and useful for logs or other diagnostic output.
+- Let operational failures bubble; do not convert exceptions into domain-level rejections.
+- Account for mutable dependencies: resolving an old date reproduces the policy represented by the currently deployed code and data, not necessarily the exact historical execution.
+
+The default rule key is its class name. That is convenient while developing, but a class rename changes the key. Override `key()` with a stable domain identifier when decisions or their explanations are stored outside the current request:
+
+```php
+public function key(): string
+{
+    return 'austria.ev-price.2026';
+}
+```
+
+Rulebook returns the complete evaluation but deliberately does not persist it. Applications that require a durable audit record should store the relevant decision time, rule key, outcome, and evaluation reasons alongside their own business record.
 
 ## Validity periods
 
