@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-rulebook` will be documented in this file.
 
+## v0.2.1 - 2026-08-10
+
+- Reject invalid UTF-8 in snapshotted rule keys, class names, reasons, and reason codes before JSON serialization.
+
 ## v0.2.0 - 2026-08-10
 
 - Add versioned, JSON-compatible decision and evaluation snapshots with eager value copying and caller-controlled outcome normalization.

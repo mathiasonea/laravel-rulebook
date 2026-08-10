@@ -150,6 +150,26 @@ final class MutableMetadataRule extends Rule
 }
 
 /** @extends Rule<TestSubject, TestContext|null, string> */
+final class InvalidUtf8MetadataRule extends Rule
+{
+    public function __construct(private readonly string $field) {}
+
+    public function key(): string
+    {
+        return $this->field === 'key' ? "invalid\xFF" : 'valid-key';
+    }
+
+    public function evaluate(RuleInput $input): RuleResult
+    {
+        return RuleResult::applies(
+            outcome: 'outcome',
+            reason: $this->field === 'reason' ? "invalid\xFF" : 'A valid reason.',
+            reasonCode: $this->field === 'reasonCode' ? "invalid\xFF" : 'valid_reason',
+        );
+    }
+}
+
+/** @extends Rule<TestSubject, TestContext|null, string> */
 final class ContextReadingRule extends Rule
 {
     public function evaluate(RuleInput $input): RuleResult

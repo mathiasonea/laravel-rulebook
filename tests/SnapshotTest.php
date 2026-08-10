@@ -7,6 +7,7 @@ use MathiasOnea\Rulebook\Tests\Fixtures\AlwaysApplicableRule;
 use MathiasOnea\Rulebook\Tests\Fixtures\EqualPriorityRule;
 use MathiasOnea\Rulebook\Tests\Fixtures\HigherPriorityRule;
 use MathiasOnea\Rulebook\Tests\Fixtures\InapplicableRule;
+use MathiasOnea\Rulebook\Tests\Fixtures\InvalidUtf8MetadataRule;
 use MathiasOnea\Rulebook\Tests\Fixtures\NullableOutcomeRule;
 use MathiasOnea\Rulebook\Tests\Fixtures\TestSubject;
 use MathiasOnea\Rulebook\Tests\Fixtures\WindowedRule;
@@ -116,6 +117,8 @@ it('rejects values that JSON cannot transport safely', function (mixed $outcome)
 })->with([
     'unsupported object' => [new stdClass],
     'non-finite number' => [NAN],
+    'invalid UTF-8 string' => ["invalid\xFF"],
+    'invalid UTF-8 array key' => [["invalid\xFF" => 'value']],
 ]);
 
 it('rejects resource outcomes', function () {
@@ -142,3 +145,19 @@ it('preserves a nullable outcome in a portable snapshot', function () {
     expect($snapshot->outcome())->toBeNull()
         ->and($snapshot->toArray()['outcome'])->toBeNull();
 });
+
+it('rejects invalid UTF-8 evaluation metadata when creating a snapshot', function (
+    string $field,
+    string $path,
+) {
+    app()->instance(InvalidUtf8MetadataRule::class, new InvalidUtf8MetadataRule($field));
+
+    $decision = rulebookWith([InvalidUtf8MetadataRule::class])->resolveNow(new TestSubject);
+
+    expect(fn () => $decision->snapshot())
+        ->toThrow(UnportableSnapshotValue::class, $path);
+})->with([
+    'rule key' => ['key', 'evaluation.key'],
+    'reason' => ['reason', 'evaluation.reason'],
+    'reason code' => ['reasonCode', 'evaluation.reason_code'],
+]);

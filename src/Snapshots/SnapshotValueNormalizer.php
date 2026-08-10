@@ -33,6 +33,13 @@ final class SnapshotValueNormalizer
         return self::normalizeAt($value, 'outcome', 0, $objects, false);
     }
 
+    public static function assertValidString(string $value, string $path): void
+    {
+        if (preg_match('//u', $value) !== 1) {
+            throw new UnportableSnapshotValue($path, 'invalid UTF-8 string');
+        }
+    }
+
     /**
      * @param  array<int, true>  $objects
      * @return array<array-key, mixed>|bool|float|int|string|null
@@ -61,9 +68,7 @@ final class SnapshotValueNormalizer
         }
 
         if (is_string($value)) {
-            if (preg_match('//u', $value) !== 1) {
-                throw new UnportableSnapshotValue($path, 'invalid UTF-8 string');
-            }
+            self::assertValidString($value, $path);
 
             return $value;
         }
@@ -72,8 +77,8 @@ final class SnapshotValueNormalizer
             $normalized = [];
 
             foreach ($value as $key => $item) {
-                if (is_string($key) && preg_match('//u', $key) !== 1) {
-                    throw new UnportableSnapshotValue($path, 'invalid UTF-8 array key');
+                if (is_string($key)) {
+                    self::assertValidString($key, $path.'.array_key');
                 }
 
                 $normalized[$key] = self::normalizeAt(
