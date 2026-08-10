@@ -1,11 +1,15 @@
 <?php
 
 use Carbon\CarbonImmutable;
+use MathiasOnea\Rulebook\Evaluations\RuleEvaluation;
 use MathiasOnea\Rulebook\Exceptions\AmbiguousRuleMatch;
 use MathiasOnea\Rulebook\Exceptions\DuplicateRuleKey;
+use MathiasOnea\Rulebook\Exceptions\InvalidRuleKey;
 use MathiasOnea\Rulebook\Exceptions\NoMatchingRule;
 use MathiasOnea\Rulebook\Resolution\RuleResolver;
+use MathiasOnea\Rulebook\Results\RuleResult;
 use MathiasOnea\Rulebook\Tests\Fixtures\AlwaysApplicableRule;
+use MathiasOnea\Rulebook\Tests\Fixtures\BlankKeyRule;
 use MathiasOnea\Rulebook\Tests\Fixtures\ConfigurableRulebook;
 use MathiasOnea\Rulebook\Tests\Fixtures\ContainerInjectedRule;
 use MathiasOnea\Rulebook\Tests\Fixtures\ContextReadingRule;
@@ -17,6 +21,7 @@ use MathiasOnea\Rulebook\Tests\Fixtures\ExplodingRule;
 use MathiasOnea\Rulebook\Tests\Fixtures\HigherPriorityRule;
 use MathiasOnea\Rulebook\Tests\Fixtures\InapplicableRule;
 use MathiasOnea\Rulebook\Tests\Fixtures\InjectedOutcomeSource;
+use MathiasOnea\Rulebook\Tests\Fixtures\MutableMetadataRule;
 use MathiasOnea\Rulebook\Tests\Fixtures\NullableOutcomeRule;
 use MathiasOnea\Rulebook\Tests\Fixtures\TestContext;
 use MathiasOnea\Rulebook\Tests\Fixtures\TestSubject;
@@ -143,6 +148,42 @@ it('rejects duplicate stable keys before evaluating rules', function () {
     }
 
     test()->fail('DuplicateRuleKey was not thrown.');
+});
+
+it('rejects blank rule keys before evaluating rules', function () {
+    expect(fn () => rulebookWith([BlankKeyRule::class])->evaluateNow(new TestSubject))
+        ->toThrow(InvalidRuleKey::class, BlankKeyRule::class);
+});
+
+it('captures rule metadata once before domain evaluation', function () {
+    $rule = new MutableMetadataRule;
+    app()->instance(MutableMetadataRule::class, $rule);
+
+    $decision = rulebookWith([
+        AlwaysApplicableRule::class,
+        MutableMetadataRule::class,
+    ])->resolveNow(new TestSubject);
+    $evaluation = $decision->evaluationFor('mutable-1');
+    $snapshot = $decision->snapshot();
+
+    expect($decision->winningRule())->toBe($rule)
+        ->and($decision->winningRuleKey())->toBe('mutable-1')
+        ->and($evaluation)->not->toBeNull()
+        ->and($evaluation?->priority())->toBe(99)
+        ->and($evaluation?->validity()->startsAt())->toBeNull()
+        ->and($evaluation?->validity()->endsAt())->toBeNull()
+        ->and($snapshot->winningRuleKey())->toBe('mutable-1')
+        ->and($rule->keyCalls)->toBe(1)
+        ->and($rule->priorityCalls)->toBe(1)
+        ->and($rule->validityCalls)->toBe(1);
+});
+
+it('rejects an applicable result for a rule that was not evaluated', function () {
+    expect(fn () => new RuleEvaluation(
+        rule: new AlwaysApplicableRule,
+        result: RuleResult::applies('invalid', 'This is contradictory.'),
+        evaluated: false,
+    ))->toThrow(InvalidArgumentException::class, 'unevaluated rule');
 });
 
 it('does not invoke rules outside their validity period', function () {

@@ -61,13 +61,21 @@ it('requires a non-empty reason for every result', function (string $reason) {
         ->toThrow(InvalidArgumentException::class);
 })->with(['', '   ', "\n\t"]);
 
+it('requires a non-empty reason code when one is provided', function (string $reasonCode) {
+    expect(fn () => RuleResult::applies('outcome', 'A useful reason.', $reasonCode))
+        ->toThrow(InvalidArgumentException::class)
+        ->and(fn () => RuleResult::doesNotApply('A useful reason.', $reasonCode))
+        ->toThrow(InvalidArgumentException::class);
+})->with(['', '   ', "\n\t"]);
+
 it('retains applicability, outcome, and explanation', function () {
-    $result = RuleResult::applies('price', 'The contract price applies.');
+    $result = RuleResult::applies('price', 'The contract price applies.', 'contract_price');
 
     expect($result->isApplicable())->toBeTrue()
         ->and($result->isInapplicable())->toBeFalse()
         ->and($result->outcome())->toBe('price')
-        ->and($result->reason())->toBe('The contract price applies.');
+        ->and($result->reason())->toBe('The contract price applies.')
+        ->and($result->reasonCode())->toBe('contract_price');
 });
 
 it('distinguishes a nullable applicable outcome from inapplicability', function () {

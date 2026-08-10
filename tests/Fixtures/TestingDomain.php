@@ -90,7 +90,62 @@ final class InapplicableRule extends Rule
 {
     public function evaluate(RuleInput $input): RuleResult
     {
-        return RuleResult::doesNotApply('The subject does not meet this rule.');
+        return RuleResult::doesNotApply(
+            reason: 'The subject does not meet this rule.',
+            reasonCode: 'subject_ineligible',
+        );
+    }
+}
+
+/** @extends Rule<TestSubject, TestContext|null, string> */
+final class BlankKeyRule extends Rule
+{
+    public function key(): string
+    {
+        return '   ';
+    }
+
+    public function evaluate(RuleInput $input): RuleResult
+    {
+        return RuleResult::applies('blank-key', 'This rule should never be evaluated.');
+    }
+}
+
+/** @extends Rule<TestSubject, TestContext|null, string> */
+final class MutableMetadataRule extends Rule
+{
+    public int $keyCalls = 0;
+
+    public int $priorityCalls = 0;
+
+    public int $validityCalls = 0;
+
+    public function key(): string
+    {
+        $this->keyCalls++;
+
+        return 'mutable-'.$this->keyCalls;
+    }
+
+    public function priority(): int
+    {
+        $this->priorityCalls++;
+
+        return 100 - $this->priorityCalls;
+    }
+
+    public function validity(): ValidityPeriod
+    {
+        $this->validityCalls++;
+
+        return $this->validityCalls === 1
+            ? ValidityPeriod::always()
+            : ValidityPeriod::until(new DateTimeImmutable('2000-01-01T00:00:00+00:00'));
+    }
+
+    public function evaluate(RuleInput $input): RuleResult
+    {
+        return RuleResult::applies('mutable', 'The captured metadata remains stable.');
     }
 }
 

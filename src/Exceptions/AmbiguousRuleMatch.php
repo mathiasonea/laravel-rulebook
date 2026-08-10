@@ -18,7 +18,7 @@ final class AmbiguousRuleMatch extends RuntimeException
     public function __construct(public readonly Evaluation $evaluation)
     {
         $keys = array_map(
-            static fn ($ruleEvaluation): string => $ruleEvaluation->rule()->key(),
+            static fn ($ruleEvaluation): string => $ruleEvaluation->key(),
             $evaluation->topApplicableEvaluations(),
         );
 

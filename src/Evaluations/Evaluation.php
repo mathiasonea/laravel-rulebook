@@ -8,6 +8,8 @@ use MathiasOnea\Rulebook\Decisions\Decision;
 use MathiasOnea\Rulebook\Exceptions\AmbiguousRuleMatch;
 use MathiasOnea\Rulebook\Exceptions\NoMatchingRule;
 use MathiasOnea\Rulebook\Inputs\RuleInput;
+use MathiasOnea\Rulebook\Snapshots\EvaluationSnapshot;
+use MathiasOnea\Rulebook\Snapshots\RuleEvaluationSnapshot;
 
 /**
  * @template TSubject of object
@@ -118,6 +120,17 @@ final readonly class Evaluation
      */
     public function shadowedRules(): array
     {
+        return array_map(
+            static fn (RuleEvaluation $evaluation): Rule => $evaluation->rule(),
+            $this->shadowedEvaluations(),
+        );
+    }
+
+    /**
+     * @return list<RuleEvaluation<TSubject, TContext, TOutcome>>
+     */
+    public function shadowedEvaluations(): array
+    {
         $top = $this->topApplicableEvaluations();
 
         if ($top === []) {
@@ -125,15 +138,35 @@ final readonly class Evaluation
         }
 
         $highestPriority = $top[0]->priority();
-        $shadowed = [];
 
-        foreach ($this->applicableEvaluations() as $evaluation) {
-            if ($evaluation->priority() < $highestPriority) {
-                $shadowed[] = $evaluation->rule();
+        return array_values(array_filter(
+            $this->applicableEvaluations(),
+            static fn (RuleEvaluation $evaluation): bool => $evaluation->priority() < $highestPriority,
+        ));
+    }
+
+    /**
+     * @return list<RuleEvaluation<TSubject, TContext, TOutcome>>
+     */
+    public function conflictingEvaluations(): array
+    {
+        $top = $this->topApplicableEvaluations();
+
+        return count($top) > 1 ? $top : [];
+    }
+
+    /**
+     * @return RuleEvaluation<TSubject, TContext, TOutcome>|null
+     */
+    public function evaluationFor(string $key): ?RuleEvaluation
+    {
+        foreach ($this->evaluations as $evaluation) {
+            if ($evaluation->key() === $key) {
+                return $evaluation;
             }
         }
 
-        return $shadowed;
+        return null;
     }
 
     public function hasWinner(): bool
@@ -175,5 +208,16 @@ final readonly class Evaluation
         }
 
         return new Decision($this, $top[0]);
+    }
+
+    public function snapshot(): EvaluationSnapshot
+    {
+        return new EvaluationSnapshot(
+            evaluatedAt: $this->evaluatedAt(),
+            evaluations: array_map(
+                static fn (RuleEvaluation $evaluation): RuleEvaluationSnapshot => $evaluation->snapshot(),
+                $this->evaluations,
+            ),
+        );
     }
 }

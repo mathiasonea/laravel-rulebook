@@ -2,6 +2,16 @@
 
 All notable changes to `laravel-rulebook` will be documented in this file.
 
+## v0.2.0 - 2026-08-10
+
+- Add versioned, JSON-compatible decision and evaluation snapshots with eager value copying and caller-controlled outcome normalization.
+- Add structured applicable, does-not-apply, and outside-validity evaluation statuses.
+- Add optional machine-readable result reason codes.
+- Capture rule keys, priorities, and validity periods once before domain evaluation.
+- Add evaluation lookup, shadowed-evaluation, and conflicting-evaluation helpers.
+- Reject blank rule keys before evaluating rules.
+- Reject unsupported snapshot values instead of retaining live or lossy outcome objects.
+
 ## v0.1.4 - 2026-08-10
 
 Trust and polish release.

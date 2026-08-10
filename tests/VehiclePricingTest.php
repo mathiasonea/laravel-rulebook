@@ -1,8 +1,10 @@
 <?php
 
+use MathiasOnea\Rulebook\Exceptions\UnportableSnapshotValue;
 use MathiasOnea\Rulebook\Tests\Fixtures\VehiclePricing\AustrianElectricVehiclePrice;
 use MathiasOnea\Rulebook\Tests\Fixtures\VehiclePricing\AustrianVehiclePrice;
 use MathiasOnea\Rulebook\Tests\Fixtures\VehiclePricing\DefaultVehiclePrice;
+use MathiasOnea\Rulebook\Tests\Fixtures\VehiclePricing\Money;
 use MathiasOnea\Rulebook\Tests\Fixtures\VehiclePricing\Vehicle;
 use MathiasOnea\Rulebook\Tests\Fixtures\VehiclePricing\VehiclePricingContext;
 use MathiasOnea\Rulebook\Tests\Fixtures\VehiclePricing\VehiclePricingRulebook;
@@ -58,4 +60,34 @@ it('uses the default price outside Austria', function () {
     expect($decision->outcome()->cents)->toBe(30_000_00)
         ->and($decision->winningRule())->toBeInstanceOf(DefaultVehiclePrice::class)
         ->and($decision->inapplicableRules())->toHaveCount(2);
+});
+
+it('normalizes an object outcome when creating a decision snapshot', function () {
+    $decision = app(VehiclePricingRulebook::class)->resolveAt(
+        subject: new Vehicle(electric: true),
+        at: new DateTimeImmutable('2026-06-15T10:00:00+02:00'),
+        context: new VehiclePricingContext(country: 'AT'),
+    );
+
+    $snapshot = $decision->snapshot(
+        static fn (Money $money): array => ['cents' => $money->cents],
+    );
+
+    expect($snapshot->outcome())->toBe(['cents' => 32_500_00])
+        ->and($snapshot->toArray()['outcome'])->toBe(['cents' => 32_500_00])
+        ->and(json_decode(json_encode($snapshot, JSON_THROW_ON_ERROR), true, flags: JSON_THROW_ON_ERROR)['outcome'])
+        ->toBe(['cents' => 32_500_00]);
+});
+
+it('rejects an object outcome without an explicit portable representation', function () {
+    $decision = app(VehiclePricingRulebook::class)->resolveAt(
+        subject: new Vehicle(electric: true),
+        at: new DateTimeImmutable('2026-06-15T10:00:00+02:00'),
+        context: new VehiclePricingContext(country: 'AT'),
+    );
+
+    expect(fn () => $decision->snapshot())
+        ->toThrow(UnportableSnapshotValue::class, Money::class)
+        ->and(fn () => $decision->snapshot(static fn (Money $money): Money => $money))
+        ->toThrow(UnportableSnapshotValue::class, Money::class);
 });

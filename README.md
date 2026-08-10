@@ -270,11 +270,14 @@ The returned decision exposes the winner and the complete evaluation:
 ```php
 $decision->outcome();             // Money
 $decision->winningRule();         // the selected Rule instance
+$decision->winningRuleKey();      // the stable key captured for the winner
 $decision->winningResult();       // outcome and mandatory reason
 $decision->evaluations();         // every RuleEvaluation
+$decision->evaluationFor($key);   // one evaluation by stable rule key
 $decision->applicableRules();     // includes lower-priority matches
 $decision->inapplicableRules();
 $decision->shadowedRules();       // applicable, but below the winner
+$decision->shadowedEvaluations(); // rules, results, reasons, and captured metadata
 $decision->evaluatedAt();
 ```
 
@@ -293,6 +296,9 @@ $evaluation->inapplicableEvaluations();
 $evaluation->applicableRules();
 $evaluation->inapplicableRules();
 $evaluation->shadowedRules();
+$evaluation->shadowedEvaluations();
+$evaluation->conflictingEvaluations();
+$evaluation->evaluationFor($key);
 $evaluation->hasWinner();
 $evaluation->hasConflict();
 
@@ -306,6 +312,7 @@ Resolution throws:
 - `NoMatchingRule` when nothing applies.
 - `AmbiguousRuleMatch` when more than one applicable rule shares the highest priority.
 - `DuplicateRuleKey` when registered rules expose the same key.
+- `InvalidRuleKey` when a registered rule exposes a blank key.
 
 `NoMatchingRule` and `AmbiguousRuleMatch` both retain the exact `Evaluation` on their public `$evaluation` property and through `evaluation()`. Registration order never breaks an equal-priority tie.
 
@@ -317,7 +324,7 @@ try {
 } catch (AmbiguousRuleMatch $exception) {
     foreach ($exception->evaluation->evaluations() as $ruleEvaluation) {
         Log::warning('Ambiguous rulebook evaluation.', [
-            'rule' => $ruleEvaluation->rule()->key(),
+            'rule' => $ruleEvaluation->key(),
             'applies' => $ruleEvaluation->isApplicable(),
             'reason' => $ruleEvaluation->result()->reason(),
         ]);
@@ -345,7 +352,60 @@ public function key(): string
 }
 ```
 
-Rulebook returns the complete evaluation but deliberately does not persist it. Applications that require a durable audit record should store the relevant decision time, rule key, outcome, and evaluation reasons alongside their own business record.
+Rulebook returns the complete evaluation but deliberately does not persist it. Applications that require a durable audit record can store a portable snapshot alongside their own business record.
+
+## Structured statuses and reason codes
+
+Every `RuleEvaluation` has one structured status:
+
+- `RuleEvaluationStatus::Applicable` when the rule produced an applicable result.
+- `RuleEvaluationStatus::DoesNotApply` when the rule was evaluated but did not apply.
+- `RuleEvaluationStatus::OutsideValidity` when the rule was skipped because of its validity period.
+
+`wasEvaluated()` remains available when only the distinction between a domain rejection and a skipped rule matters. Rule keys, priorities, and validity periods are captured once before domain evaluation, so later inspection cannot change the winner.
+
+Results may also include an optional machine-readable reason code alongside the mandatory human explanation:
+
+```php
+return RuleResult::doesNotApply(
+    reason: 'The vehicle is not electric.',
+    reasonCode: 'vehicle_not_electric',
+);
+```
+
+Use reason codes for stable filtering, metrics, or localization; keep the reason useful to a human reading the decision.
+
+## Portable decision snapshots
+
+Snapshots remove live subject, context, and rule objects while retaining the decision time, frozen rule metadata, validity windows, statuses, reasons, and reason codes. A decision snapshot always has one winner; an evaluation snapshot can instead record a conflict or no match. Both implement `JsonSerializable` and expose `toArray()`:
+
+```php
+$snapshot = $decision->snapshot(
+    normalizeOutcome: static fn (Money $money): array => [
+        'currency' => $money->currency,
+        'amount_in_cents' => $money->cents,
+    ],
+);
+
+$record = $snapshot->toArray();
+$json = json_encode($snapshot, JSON_THROW_ON_ERROR);
+```
+
+Scalar, array, backed-enum, or `JsonSerializable` outcomes can use `$decision->snapshot()` directly. Supply `normalizeOutcome` when another outcome object needs an application-specific portable representation. Snapshot creation eagerly copies the normalized value and throws `UnportableSnapshotValue` for unsupported objects, resources, invalid UTF-8, non-finite numbers, cycles, or excessive nesting.
+
+An evaluation can be snapshotted before resolution, including when no rule applies or several rules conflict:
+
+```php
+$snapshot = $rulebook->evaluateAt($vehicle, $at, $context)->snapshot();
+
+$snapshot->winningRuleKey();       // string|null
+$snapshot->conflictingRuleKeys();  // list<string>
+$snapshot->evaluations();          // list<RuleEvaluationSnapshot>
+```
+
+Snapshots are transport records, not persistence. The application remains responsible for choosing where to store them and which subject or business-record identifier belongs beside them.
+
+Every top-level snapshot contains `schema_version: 1`. The serialized field names, meanings, and status values are public API and follow the package's semantic-versioning policy.
 
 ## Validity periods
 
@@ -410,18 +470,16 @@ Applicability is stored separately from the outcome, so this is not confused wit
 
 ## Roadmap
 
-- Database, JSON, YAML, or UI-authored rules
-- Optional persistence, caching, events, queues, or rule auto-discovery
-- A constrained expression language for rules that should not be PHP classes
-- Alternative specificity or conflict-resolution strategies
-- Multi-rule outcome composition, pipelines, discounts, or transformations
-- Convenience integrations such as a facade, registry, or publishable configuration
+- First-party temporal test matrices and expressive decision assertions
+- Inspection tooling for keys, priorities, validity windows, gaps, and obvious collisions
+- Optional Laravel integrations for observing or persisting snapshots
+- Further extension points driven by concrete production use cases
 
 Already maintaining effective-date business logic? Model one real decision with Rulebook, then [open an issue](https://github.com/mathiasonea/laravel-rulebook/issues/new/choose) or start a [discussion](https://github.com/mathiasonea/laravel-rulebook/discussions) and tell us where the API feels heavy or breaks down. Focused [pull requests](https://github.com/mathiasonea/laravel-rulebook/pulls) are welcome; please discuss larger changes first.
 
-## Implementation clarifications
+## Core invariants
 
-The v0.1 implementation makes three invariants explicit at runtime: blank or whitespace-only reasons are rejected; an invalid or empty validity period is rejected when constructed; and skipped out-of-window rules are distinguishable from evaluated domain rejections through `RuleEvaluation::wasEvaluated()`.
+Blank reasons, blank provided reason codes, blank rule keys, and invalid or empty validity periods are rejected. Skipped out-of-window rules remain distinguishable from evaluated domain rejections, and rule metadata is captured once per evaluation. Portable snapshots reject values that cannot be represented safely in their versioned JSON schema.
 
 ## Development
 
