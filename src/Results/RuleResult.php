@@ -16,9 +16,14 @@ final readonly class RuleResult
         /** @var Closure(): TOutcome */
         private Closure $outcome,
         private string $reason,
+        private ?string $reasonCode,
     ) {
         if (trim($reason) === '') {
             throw new InvalidArgumentException('A rule result reason must not be empty.');
+        }
+
+        if ($reasonCode !== null && trim($reasonCode) === '') {
+            throw new InvalidArgumentException('A rule result reason code must not be empty when provided.');
         }
     }
 
@@ -28,20 +33,21 @@ final readonly class RuleResult
      * @param  TApplicableOutcome  $outcome
      * @return self<TApplicableOutcome>
      */
-    public static function applies(mixed $outcome, string $reason): self
+    public static function applies(mixed $outcome, string $reason, ?string $reasonCode = null): self
     {
-        return new self(true, static fn (): mixed => $outcome, $reason);
+        return new self(true, static fn (): mixed => $outcome, $reason, $reasonCode);
     }
 
     /**
      * @return self<never>
      */
-    public static function doesNotApply(string $reason): self
+    public static function doesNotApply(string $reason, ?string $reasonCode = null): self
     {
         return new self(
             false,
             static fn (): never => throw new LogicException('An inapplicable rule result has no outcome.'),
             $reason,
+            $reasonCode,
         );
     }
 
@@ -58,6 +64,11 @@ final readonly class RuleResult
     public function reason(): string
     {
         return $this->reason;
+    }
+
+    public function reasonCode(): ?string
+    {
+        return $this->reasonCode;
     }
 
     /**
