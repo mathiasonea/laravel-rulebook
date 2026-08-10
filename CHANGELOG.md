@@ -2,6 +2,15 @@
 
 All notable changes to `laravel-rulebook` will be documented in this file.
 
+## v0.1.4 - 2026-08-10
+
+Trust and polish release.
+
+- Document the deterministic, side-effect-free rule authoring contract, stable keys, exception behavior, and the limits of historical reproduction against mutable code and data.
+- Correct the ambiguity logging example to use Laravel's logger with structured context.
+- Remove the unnecessary `spatie/laravel-package-tools` runtime dependency while retaining the existing service provider for compatibility.
+- Run PHPStan for pull requests and when Composer metadata changes.
+
 ## v0.1.3 - 2026-08-09
 
 Documentation and discovery release.

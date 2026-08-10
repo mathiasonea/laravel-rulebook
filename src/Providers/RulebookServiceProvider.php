@@ -2,13 +2,6 @@
 
 namespace MathiasOnea\Rulebook\Providers;
 
-use Spatie\LaravelPackageTools\Package;
-use Spatie\LaravelPackageTools\PackageServiceProvider;
+use Illuminate\Support\ServiceProvider;
 
-final class RulebookServiceProvider extends PackageServiceProvider
-{
-    public function configurePackage(Package $package): void
-    {
-        $package->name('laravel-rulebook');
-    }
-}
+final class RulebookServiceProvider extends ServiceProvider {}

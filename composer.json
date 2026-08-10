@@ -30,8 +30,7 @@
     "require": {
         "php": "^8.3",
         "illuminate/contracts": "^12.0|^13.0",
-        "illuminate/support": "^12.0|^13.0",
-        "spatie/laravel-package-tools": "^1.93"
+        "illuminate/support": "^12.0|^13.0"
     },
     "require-dev": {
         "laravel/pint": "^1.14",
@@ -61,8 +60,6 @@
         ]
     },
     "scripts": {
-        "post-autoload-dump": "@composer run prepare",
-        "prepare": "@php vendor/bin/testbench package:discover --ansi",
         "analyse": "vendor/bin/phpstan analyse --memory-limit=512M",
         "test": "vendor/bin/pest",
         "test-coverage": "vendor/bin/pest --coverage",
