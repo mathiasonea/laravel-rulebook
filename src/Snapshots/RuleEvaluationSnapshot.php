@@ -26,12 +26,21 @@ final readonly class RuleEvaluationSnapshot implements JsonSerializable
             throw new InvalidArgumentException('A rule evaluation snapshot key must not be empty.');
         }
 
+        SnapshotValueNormalizer::assertValidString($key, 'evaluation.key');
+        SnapshotValueNormalizer::assertValidString($ruleClass, 'evaluation.rule_class');
+
         if (trim($reason) === '') {
             throw new InvalidArgumentException('A rule evaluation snapshot reason must not be empty.');
         }
 
+        SnapshotValueNormalizer::assertValidString($reason, 'evaluation.reason');
+
         if ($reasonCode !== null && trim($reasonCode) === '') {
             throw new InvalidArgumentException('A rule evaluation snapshot reason code must not be empty when provided.');
+        }
+
+        if ($reasonCode !== null) {
+            SnapshotValueNormalizer::assertValidString($reasonCode, 'evaluation.reason_code');
         }
 
         if ($validFrom !== null && $validUntil !== null && $validFrom >= $validUntil) {
