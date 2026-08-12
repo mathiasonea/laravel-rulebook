@@ -1,18 +1,44 @@
 # Laravel Rulebook
 
+**Keep historical business decisions reproducible—even after the rules change.**
+
+Pricing, eligibility, and entitlement rules often change on a specific date. When that logic lives in growing `if` statements, it becomes difficult to answer:
+
+- Which rule applied to this invoice, quote, or customer?
+- Why did that rule win?
+- Would the same decision be reproduced for that date?
+
+Give each policy version a name and validity period. When resolution succeeds, Laravel Rulebook returns one explicit winner for that point in time:
+
+```php
+$decision = $vehiclePricingRulebook->resolveAt(
+    subject: $vehicle,
+    at: $invoice->issued_at,
+    context: $pricingContext,
+);
+
+$decision->outcome()->formatted();            // 32.500,00 EUR
+class_basename($decision->winningRule());     // AustrianElectricVehiclePrice2026
+$decision->winningResult()->reason();         // The 2026 Austrian electric-vehicle price applies.
+```
+
+The same decision also explains what happened to every other rule:
+
+| Rule | Status | Role |
+| --- | --- | --- |
+| Global default | `applicable` | Shadowed fallback |
+| Austrian price | `applicable` | Shadowed fallback |
+| Austrian EV 2025 | `outside_validity` | Skipped |
+| Austrian EV 2026 | `applicable` | **Winner** |
+| Austrian EV 2027 | `outside_validity` | Skipped |
+
+**Change tomorrow's policy without rewriting yesterday's decision.**
+
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/mathiasonea/laravel-rulebook.svg?style=flat-square)](https://packagist.org/packages/mathiasonea/laravel-rulebook)
 [![Total Downloads](https://img.shields.io/packagist/dt/mathiasonea/laravel-rulebook.svg?style=flat-square)](https://packagist.org/packages/mathiasonea/laravel-rulebook)
 [![Tests](https://github.com/mathiasonea/laravel-rulebook/actions/workflows/run-tests.yml/badge.svg?branch=main)](https://github.com/mathiasonea/laravel-rulebook/actions/workflows/run-tests.yml)
 [![PHP Version](https://img.shields.io/packagist/dependency-v/mathiasonea/laravel-rulebook/php.svg?style=flat-square)](https://packagist.org/packages/mathiasonea/laravel-rulebook)
 [![License](https://img.shields.io/packagist/l/mathiasonea/laravel-rulebook.svg?style=flat-square)](LICENSE.md)
-
-**Business rules change. Old decisions still need to make sense.**
-
-Laravel Rulebook selects which code-defined business rule applies to a subject at any point in time—and explains why.
-
-Editing dated conditionals in place destroys the reproducibility and explainability of historical decisions. As policies accumulate, overlaps and fallbacks become accidental: the same invoice, quote, or eligibility check can produce a different answer after the code changes, with no durable account of which rule won.
-
-Rulebook keeps those decisions **code-defined**, **time-aware**, **deterministic**, and **explainable**. Every resolution has one explicit winner, a decision time, and the complete evaluation behind it.
 
 ## Before and after
 
@@ -30,7 +56,7 @@ if ($invoice->issued_at < new DateTimeImmutable('2027-01-01T00:00:00+01:00')) {
 return $this->currentPrice($vehicle);
 ```
 
-With Rulebook, each policy version remains a named rule and the decision date is part of resolution:
+With Rulebook, each policy version remains a named rule. The decision date is explicit, and the result says which rule won and why:
 
 ```php
 $decision = $vehiclePricingRulebook->resolveAt(
@@ -44,13 +70,7 @@ $rule = $decision->winningRule();
 $reason = $decision->winningResult()->reason();
 ```
 
-## Use it when
-
-- Effective-date conditionals keep accumulating in application services.
-- A policy is edited in place even though old decisions must remain reproducible.
-- Several rules can apply and the intended winner or fallback must be explicit.
-- A decision varies by subject, context, and point in time.
-- You need to reconstruct why an invoice, price, entitlement, or eligibility decision was made.
+Every resolution also retains the complete evaluation: applicable fallbacks, rejected rules, and rules skipped because they were outside their validity window.
 
 ## Installation
 
@@ -60,14 +80,28 @@ composer require mathiasonea/laravel-rulebook
 
 Laravel discovers the package provider automatically. There is no configuration to publish, migration to run, facade, or global registry.
 
+For a complete working application, run the [Austrian EV pricing example](https://github.com/mathiasonea/laravel-rulebook-austrian-ev-example). It compares three yearly policies and prints the winner, fallbacks, skipped validity windows, and reasons from one Artisan command.
+
+## Use it when
+
+- Effective-date conditionals keep accumulating in application services.
+- A policy is edited in place even though old decisions must remain reproducible.
+- Several rules can apply and the intended winner or fallback must be explicit.
+- A decision varies by subject, context, and point in time.
+- You need to reconstruct why an invoice, price, entitlement, or eligibility decision was made.
+
 ## Requirements
 
 - PHP 8.3 or newer
 - Laravel 12 or 13
 
-## Scope
+## Not a fit when
 
-Rulebook is code-defined and resolves exactly one winning rule. It does not provide a DSL, database- or UI-authored rules, workflow or state-machine behavior, or multi-rule outcome composition.
+Rulebook is deliberately code-defined and resolves exactly one winning rule. It is not a fit when you need:
+
+- A DSL or rules authored in a database or UI.
+- Workflow or state-machine behavior.
+- Outcomes composed from multiple winning rules.
 
 ## Resources
 
